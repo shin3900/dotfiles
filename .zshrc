@@ -6,6 +6,8 @@ zstyle ':completion:*' use-compctl false # compctl形式を使用しない
 
 autoload -U colors; colors      # ${fg[red]}形式のカラー書式を有効化
 
+autoload -Uz VCS_INFO_get_data_git; VCS_INFO_get_data_git 2> /dev/null
+
 hosts=( localhost `hostname` )
 #printers=( lw ph clw )
 umask 002
@@ -97,6 +99,30 @@ compdef _tex platex             # platex に .tex を
 unsetopt promptcr       # 改行のない出力をプロンプトで上書きするのを防ぐ
 setopt prompt_subst             # ESCエスケープを有効にする
 
+function rprompt-git-current-branch {
+  local name st color gitdir action
+  if [[ "$PWD" =~ '/\.git(/.*)?$' ]]; then
+    return
+  fi
+  name=`git branch 2> /dev/null | grep '^\*' | cut -b 3-`
+  if [[ -z $name ]]; then
+    return
+  fi
+  gitdir=`git rev-parse --git-dir 2> /dev/null`
+  action=`VCS_INFO_git_getaction "$gitdir"` && action="($action)"
+  st=`git status 2> /dev/null`
+  if [[ -n `echo "$st" | grep "^nothing to"` ]]; then
+    color=%F{green}
+  elif [[ -n `echo "$st" | grep "^nothing added"` ]]; then
+    color=%F{yellow}
+  elif [[ -n `echo "$st" | grep "^# Untracked"` ]]; then
+    color=%B%F{red}
+  else
+    color=%F{red}
+  fi
+  echo "$color$name$action%f%b "
+}
+
 #if [ $TERM = "kterm-color" ] || [ $TERM = "xterm" ]; then
 if [ $COLORTERM = 1 ]; then
   if [ $UID = 0 ] ; then 
@@ -104,6 +130,7 @@ if [ $COLORTERM = 1 ]; then
   else
     PSCOLOR='00;04;33'
   fi
+  #RPS1=$'%{\e[${PSCOLOR}m%}[%{\e[00m%}`rprompt-git-current-branch`%{\e[${PSCOLOR}m%}%~]%{\e[00m%}'    # 右プロンプト
   RPS1=$'%{\e[${PSCOLOR}m%}[%~]%{\e[00m%}'    # 右プロンプト
   #PS1=$'%{\e]2; %m:%~ \a'$'\e]1;%%: %~\a%}'$'\n%{\e[${PSCOLOR}m%}%n@%m %#%{\e[00m%} '
   #PS1=$'%{\e]2; %m:%~ \a'$'\e]1;%%: %~\a%}'$'\n%{\e[${PSCOLOR}m%}%n@%m ${WINDOW:+"[$WINDOW]"}%#%{\e[00m%} ' #kterm
