@@ -1,0 +1,43 @@
+escape ^Ta
+
+vbell off
+hardstatus alwayslastline "%w"
+autodetach on
+startup_message off
+multiuser on
+caption always ?%{b RK} %y/%m/%d(%D)%c:%s %{bu dr} | %-w%{=bu CK}%n %t%{-}%+w?
+#defkanji euc
+defscrollback 1000
+#termcapinfo mlterm|kterm-color 'hs:ts=\E]2;:fs=\007:ds=\E]0;screen\007'
+#terminfo mlterm|kterm-color XT
+#termcap  kterm* 'AF=\E[3%dm:AB=\E[4%dm'
+#terminfo kterm* 'AF=\E[3%p1%dm:AB=\E[4%p1%dm'
+#termcap kterm hs@
+#termcapinfo cygwin KJ=SJIS
+#termcapinfo cygwin KJ=UTF-8
+#termcap  facit|vt100|xterm LP:G0
+#terminfo facit|vt100|xterm LP:G0
+#terminfo xterm KJ=SJIS
+#defencoding SJIS
+#UTF-8を使う
+defutf8 on
+defencoding utf8
+encoding utf-8 utf-8
+cjkwidth on
+
+#256color
+defbce "on"
+term xterm-256color
+termcapinfo xterm* 'Co#256:pa#32767:AB=\E[48;5;%dm:AF=\E[38;5;%dm:'
+
+screen -t '' 0
+monitor on
+screen -t '' 1
+screen -t '' 2
+screen -t '' 3
+screen -t '' 4
+screen -t '' 5
+screen -t '' 6
+screen -t '' 7
+screen -t '' 8
+screen -t '' 9
