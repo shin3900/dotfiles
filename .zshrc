@@ -63,8 +63,6 @@ setopt auto_pushd				# pushd
 #setopt rm_star_silent          # rm * で本当に良いか聞かずに実行
 #setopt rm_star_wait            # rm * の時に 10秒間何もしない
 #setopt chase_links             # リンク先のパスに変換してから実行。
-# setopt sun_keyboard_hack      # SUNキーボードでの頻出 typo ` をカバーする
-
 
 #limit   coredumpsize    0       # コアファイルを吐かないようにする
 
@@ -84,12 +82,6 @@ bindkey '^N' history-beginning-search-forward # 先頭マッチのヒストリ�
 autoload run-help
 
 #### completion
-#_cache_hosts=(localhost $HOST hashish loki3 mercury
-#  Li He Pt Au Ti{1,2} Ni{1,2} Co{1..8} Zn{1..8}
-#  192.168.0.1 192.168.1.1
-#)
-# ↑(_cache_hosts) ~/.ssh/known_hosts から自動的に取得する
-
 autoload -U compinit; compinit -u
 compdef _tex platex             # platex に .tex を
 
