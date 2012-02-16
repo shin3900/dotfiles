@@ -224,7 +224,6 @@ alias xcalc='xcalc &'
 alias xterm='xterm &'
 #alias w3m="LANG='ja_JP.EUC' w3m -X"
 alias w3m="w3m -O UTF-8 -cookie"
-alias xinit='ssh-agent xinit'
 alias bell="echo '\a'"
 alias scr="screen -xRU"
 alias view="vim -R"
