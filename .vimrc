@@ -1,5 +1,7 @@
-" vim: set ts=4 sw=4 sts=0:
+" vim: set ts=2 sw=2 sts=0:
 "-----------------------------------------------------------------------------
+set nocompatible
+
 " 文字コード関連
 "
 " 文字コードの自動認識
@@ -61,6 +63,51 @@ if exists('&ambiwidth')
   set ambiwidth=double
 endif
 
+"-----------------------------------------------------------------------------
+" プラグイン管理(NeoBundleの設定)
+filetype off
+if has('vim_starting')
+  set rtp+=~/.vim/neobundle/neobundle.vim
+  call neobundle#rc(expand('~/.vim/neobundle'))
+endif
+
+" NeoBundle で管理するプラグインを書いていく
+NeoBundle 'Shougo/neobundle.vim'
+" guthub にあるプラグイン
+NeoBundle 'Shougo/vimproc'
+"NeoBundle 'mattn/benchvimrc-vim'
+"NeoBundle 'Shougo/vimfiler'
+"NeoBundle 'Rip-Rip/clang_complete'
+"NeoBundle 'Shougo/neocomplcache'
+"NeoBundle 'Shougo/neocomplcache-snippets-complete'
+"NeoBundle 'Shougo/unite.vim'
+"NeoBundle 'kana/vim-smartchr'
+"NeoBundle 'thinca/vim-ref'
+NeoBundle 'thinca/vim-quickrun'
+NeoBundle 'tpope/vim-fugitive'
+NeoBundle 'dag/vim2hs'
+NeoBundle 'eagletmt/ghcmod-vim'
+NeoBundle 'Lokaltog/vim-powerline'
+"NeoBundle 'scrooloose/nerdtree'
+"NeoBundle 'tpope/vim-speeddating'
+" www.vim.org にあるプラグイン
+NeoBundle 'molokai'
+"NeoBundle 'Align'
+"NeoBundle 'yanktmp.vim'
+"NeoBundle 'L9'
+"NeoBundle 'gtags.vim'
+" それ以外にある git リポジトリにあるプラグイン
+"NeoBundle 'git://git.wincent.com/command-t.git'
+filetype plugin indent on
+"
+
+" 色テーマ
+syntax on
+set background=dark
+set t_Co=256
+colorscheme molokai
+
+
 "全角スペースを可視化
 "コメント以外で全角スペースを指定しているので scriptencodingと、
 ""このファイルのエンコードが一致するよう注意！
@@ -72,7 +119,6 @@ function! ZenkakuSpace()
   highlight ZenkakuSpace cterm=underline ctermfg=Yellow gui=underline guifg=darkgrey
 endfunction
 
-set t_Co=256
 if has('syntax')
   augroup ZenkakuSpace
     autocmd!
@@ -148,9 +194,10 @@ set hlsearch
 "ステータスラインを常に表示
 set laststatus=2
 "ステータスラインに文字コードと改行文字を表示する
-set statusline=%<%f\ %m%r%h%w%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']'}%=%l,%c%V%8P
+"set statusline=%<%f\ %m%r%h%w%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']'}%=%l,%c%V%8P
 " エラーフラッシュとビープ音を無効にする
 set visualbell t_vb=
+set novisualbell
 
 " 横幅が80行を超えるとハイライトする(cppのみ)
 "set colorcolumn=80
@@ -162,10 +209,6 @@ set visualbell t_vb=
 "  autocmd FileType cpp setlocal textwidth=80
 "endif
 
-syntax on
-set background=dark
-colorscheme molokai
-
 "-----------------------------------------------------------------------------
 " 補完関係 
 
@@ -176,7 +219,13 @@ set wildmenu
 "highlight Pmenu ctermbg=darkgrey
 "highlight PmenuSel ctermbg=darkblue
 "highlight PmenuSbar ctermbg=darkred
+"---- clang
+"let g:clang_complete_auto = 1
+"let g:clang_use_library   = 1
+"let g:clang_library_path  = '/usr/lib'
+"let g:clang_user_options  = '2>/dev/null || exit 0'
 
+"---- neocomplcache
 " neocomplcache を有効化
 let g:neocomplcache_enable_at_startup = 1
 " 大文字小文字の区別無し
@@ -195,16 +244,6 @@ smap <C-k> <Plug>(neocomplcache_snippets_expand)
 inoremap <expr><C-y> neocomplcache#close_popup()
 " ポップアップのキャンセル
 inoremap <expr><C-e> neocomplcache#cancel_popup()
-
-" インクルード補完のパス追加
-set path+=$CIP_ROOT/framework/include
-set path+=$CIP_ROOT/frameworkmisc/include
-set path+=$CIP_ROOT/core/include
-set path+=$CIP_ROOT/coremisc/include
-set path+=$CIP_ROOT/extension/include
-
-" タグファイルの指定
-set tags=$CIP_ROOT/tags
 
 "-----------------------------------------------------------------------------
 " マップ定義
@@ -247,31 +286,6 @@ nnoremap <silent> <Space>rg :<C-u>source $MYGVIMRC<CR>
 set shellslash 
 
 "-----------------------------------------------------------------------------
-" プラグイン管理(Vundleの設定)
-filetype off
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
-
-" Vundle で管理するプラグインを書いていく
-" gmarik/vundle は必須
-Bundle 'gmarik/vundle'
-" guthub にあるプラグイン
-"Bundle 'Shougo/vimfiler'
-"Bundle 'Shougo/neocomplcache'
-Bundle 'thinca/vim-ref'
-Bundle 'thinca/vim-quickrun'
-"Bundle 'tpope/vim-speeddating'
-"Bundle 'Shougo/unite.vim'
-" www.vim.org にあるプラグイン
-Bundle 'Align'
-Bundle 'yanktmp.vim'
-"Bundle 'L9'
-" それ以外にある git リポジトリにあるプラグイン
-"Bundle 'git://git.wincent.com/command-t.git'
-filetype plugin indent on
-"
-
-"-----------------------------------------------------------------------------
 " プラグインの設定
 
 " ref.vim
@@ -301,6 +315,30 @@ nnoremap <silent> ,um :<C-u>Unite file_mru<CR>
 " C-gで終了する
 au FileType unite nnoremap <silent> <buffer> <C-g> :q<CR>
 au FileType unite inoremap <silent> <buffer> <C-g> <ESC>:q<CR>
+
+"" smartchr
+"inoremap <buffer> <expr> = smartchr#loop(' = ', ' == ', '=')
+"inoremap <buffer> <expr> <S-=> smartchr#loop(' + ', '+')
+"inoremap <buffer> <expr> - smartchr#loop(' - ', '-')
+"inoremap <buffer> <expr> , smartchr#loop(', ', ',')
+
+
+"" powerline
+" フォント設定が必要
+"let g:Powerline_symbols='fancy'
+
+"" quickrun
+" 非同期実行の設定
+if !has("g:quickrun_config")
+  let g:quickrun_config = {}
+endif
+"let g:quickrun_config._ = {'runner' : 'vimproc'}
+let g:quickrun_config = {
+\  "_" : {
+\      "runner" : "vimproc",
+\      "runner/vimproc/updatetime" : 10,
+\  },
+\}
 
 "-----------------------------------------------------------------------------
 " その他
