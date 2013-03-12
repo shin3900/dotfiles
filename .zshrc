@@ -4,9 +4,37 @@ autoload -U zmv
 alias mmv='noglob zmv -W'  # 引数のクォートも面倒なので
 zstyle ':completion:*' use-compctl false # compctl形式を使用しない
 
-autoload -U colors; colors      # ${fg[red]}形式のカラー書式を有効化
+#autoload -Uz add-zsh-hook
+autoload -U colors
+colors
 
-autoload -Uz VCS_INFO_get_data_git; VCS_INFO_get_data_git 2> /dev/null
+# VCS設定
+#autoload -Uz vcs_info
+#
+#zstyle ':vcs_info:*' enable git svn hg bzr
+#zstyle ':vcs_info:*' formats '(%s)-[%b]'
+#zstyle ':vcs_info:*' actionformats '(%s)-[%b|%a]'
+#zstyle ':vcs_info:(svn|bzr):*' branchformat '%b:r%r'
+#zstyle ':vcs_info:bzr:*' use-simple true
+#
+#autoload -Uz is-at-least
+#if is-at-least 4.3.10; then
+#  # この check-for-changes が今回の設定するところ
+#  # 遅い
+#   zstyle ':vcs_info:git:*' check-for-changes true
+#  zstyle ':vcs_info:git:*' stagedstr "+"    # 適当な文字列に変更する
+#  zstyle ':vcs_info:git:*' unstagedstr "-"  # 適当の文字列に変更する
+#  zstyle ':vcs_info:git:*' formats '(%s)-[%b] %c%u'
+#  zstyle ':vcs_info:git:*' actionformats '(%s)-[%b|%a] %c%u'
+#fi
+#
+#function _update_vcs_info_msg() {
+#  psvar=()
+#  LANG=en_US.UTF-8 vcs_info
+#  [[ -n "$vcs_info_msg_0_" ]] && psvar[1]="$vcs_info_msg_0_"
+#}
+
+#autoload -Uz VCS_INFO_get_data_git; VCS_INFO_get_data_git 2> /dev/null
 
 hosts=( localhost `hostname` )
 #printers=( lw ph clw )
@@ -45,7 +73,7 @@ setopt list_packed              # 補完候補リストを詰めて表示
 setopt print_eight_bit          # 補完候補リストの日本語を適正表示
 #setopt menu_complete  # 1回目のTAB で補完候補を挿入。表示だけの方が好き
 #setopt no_clobber               # 上書きリダイレクトの禁止
-setopt no_unset                 # 未定義変数の使用の禁止
+#setopt no_unset                 # 未定義変数の使用の禁止
 setopt no_hup                   # logout時にバックグラウンドジョブを kill しない
 setopt no_beep                  # コマンド入力エラーでBEEPを鳴らさない
 
@@ -85,35 +113,38 @@ autoload run-help
 autoload -U compinit; compinit -u
 compdef _tex platex             # platex に .tex を
 
+#### autojump
+[[ -f ~/.autojump/etc/profile.d/autojump.zsh ]] && source ~/.autojump/etc/profile.d/autojump.zsh
+fpath=($fpath $HOME/.autojump/functions(N))
 
 ############################################################
 ## プロンプト設定
 unsetopt promptcr       # 改行のない出力をプロンプトで上書きするのを防ぐ
 setopt prompt_subst             # ESCエスケープを有効にする
 
-function rprompt-git-current-branch {
-  local name st color gitdir action
-  if [[ "$PWD" =~ '/\.git(/.*)?$' ]]; then
-    return
-  fi
-  name=`git branch 2> /dev/null | grep '^\*' | cut -b 3-`
-  if [[ -z $name ]]; then
-    return
-  fi
-  gitdir=`git rev-parse --git-dir 2> /dev/null`
-  action=`VCS_INFO_git_getaction "$gitdir"` && action="($action)"
-  st=`git status 2> /dev/null`
-  if [[ -n `echo "$st" | grep "^nothing to"` ]]; then
-    color=%F{green}
-  elif [[ -n `echo "$st" | grep "^nothing added"` ]]; then
-    color=%F{yellow}
-  elif [[ -n `echo "$st" | grep "^# Untracked"` ]]; then
-    color=%B%F{red}
-  else
-    color=%F{red}
-  fi
-  echo "$color$name$action%f%b "
-}
+#function rprompt-git-current-branch {
+#  local name st color gitdir action
+#  if [[ "$PWD" =~ '/\.git(/.*)?$' ]]; then
+#    return
+#  fi
+#  name=`git branch 2> /dev/null | grep '^\*' | cut -b 3-`
+#  if [[ -z $name ]]; then
+#    return
+#  fi
+#  gitdir=`git rev-parse --git-dir 2> /dev/null`
+#  action=`VCS_INFO_git_getaction "$gitdir"` && action="($action)"
+#  st=`git status 2> /dev/null`
+#  if [[ -n `echo "$st" | grep "^nothing to"` ]]; then
+#    color=%F{green}
+#  elif [[ -n `echo "$st" | grep "^nothing added"` ]]; then
+#    color=%F{yellow}
+#  elif [[ -n `echo "$st" | grep "^# Untracked"` ]]; then
+#    color=%B%F{red}
+#  else
+#    color=%F{red}
+#  fi
+#  echo "$color$name$action%f%b "
+#}
 
 #if [ $TERM = "kterm-color" ] || [ $TERM = "xterm" ]; then
 if [ $COLORTERM = 1 ]; then
@@ -123,7 +154,12 @@ if [ $COLORTERM = 1 ]; then
     PSCOLOR='00;04;33'
   fi
   #RPS1=$'%{\e[${PSCOLOR}m%}[%{\e[00m%}`rprompt-git-current-branch`%{\e[${PSCOLOR}m%}%~]%{\e[00m%}'    # 右プロンプト
-  RPS1=$'%{\e[${PSCOLOR}m%}[%~]%{\e[00m%}'    # 右プロンプト
+  RPS1=$'%{\e[${PSCOLOR}m%}[%~]%{\e[00m%}'    # 右プロンプトデフォルト
+
+  # Git用の設定だが遅い。。
+  #add-zsh-hook precmd _update_vcs_info_msg
+  #RPROMPT="%1(v|%F{green}%1v%f|) %F{yellow}[%~]%f"
+
   #PS1=$'%{\e]2; %m:%~ \a'$'\e]1;%%: %~\a%}'$'\n%{\e[${PSCOLOR}m%}%n@%m %#%{\e[00m%} '
   #PS1=$'%{\e]2; %m:%~ \a'$'\e]1;%%: %~\a%}'$'\n%{\e[${PSCOLOR}m%}%n@%m ${WINDOW:+"[$WINDOW]"}%#%{\e[00m%} ' #kterm
   PS1=$'%{\e]2; %m:%~ \a'$'\e]1;%%: %~\a%}'$'\n%{\e[${PSCOLOR}m%}%n@%m ${WINDOW:+"[$WINDOW]"}%#%{\e[00m%} '
@@ -147,6 +183,9 @@ fi
 
 ############################################################
 ## alias & function
+
+#### git
+alias gst='git status -s -b'
 
 #### less
 alias less="$PAGER"
@@ -231,7 +270,7 @@ alias view="vim -R"
 alias h='head'
 alias t='tail'
 alias g='grep'
-alias j='jobs'
+#alias j='jobs'
 
 ## global alias
 alias -g H='| head'

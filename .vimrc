@@ -68,31 +68,33 @@ endif
 filetype off
 if has('vim_starting')
   set rtp+=~/.vim/neobundle/neobundle.vim
-  call neobundle#rc(expand('~/.vim/neobundle'))
 endif
+call neobundle#rc(expand('~/.vim/neobundle'))
 
 " NeoBundle で管理するプラグインを書いていく
 NeoBundle 'Shougo/neobundle.vim'
 " guthub にあるプラグイン
 NeoBundle 'Shougo/vimproc'
 "NeoBundle 'mattn/benchvimrc-vim'
-"NeoBundle 'Shougo/vimfiler'
+NeoBundle 'Shougo/vimfiler'
 "NeoBundle 'Rip-Rip/clang_complete'
-"NeoBundle 'Shougo/neocomplcache'
-"NeoBundle 'Shougo/neocomplcache-snippets-complete'
+"vim本体が+pythonでビルドされている必要あり
+
+NeoBundle 'Shougo/neocomplcache'
+NeoBundle 'Shougo/neosnippet'
 "NeoBundle 'Shougo/unite.vim'
 "NeoBundle 'kana/vim-smartchr'
 "NeoBundle 'thinca/vim-ref'
 NeoBundle 'thinca/vim-quickrun'
 NeoBundle 'tpope/vim-fugitive'
 NeoBundle 'dag/vim2hs'
-NeoBundle 'eagletmt/ghcmod-vim'
+"NeoBundle 'eagletmt/ghcmod-vim'
 NeoBundle 'Lokaltog/vim-powerline'
 "NeoBundle 'scrooloose/nerdtree'
 "NeoBundle 'tpope/vim-speeddating'
 " www.vim.org にあるプラグイン
 NeoBundle 'molokai'
-"NeoBundle 'Align'
+NeoBundle 'Align'
 "NeoBundle 'yanktmp.vim'
 "NeoBundle 'L9'
 "NeoBundle 'gtags.vim'
@@ -106,6 +108,9 @@ syntax on
 set background=dark
 set t_Co=256
 colorscheme molokai
+
+" CMake_xxx.txtもcmake用ハイライトを使う
+autocmd BufNewFile,BufRead CMakeLists*.txt set filetype=cmake
 
 
 "全角スペースを可視化
@@ -233,10 +238,9 @@ let g:neocomplcache_enable_smart_case = 1
 " _区切りの補完を有効化
 let g:neocomplcache_enable_underbar_completion = 1
 
-
-" スニペットの展開
-imap <C-k> <Plug>(neocomplcache_snippets_expand)
-smap <C-k> <Plug>(neocomplcache_snippets_expand)
+" インクルード補完のパス
+"let g:neocomplcache_include_paths.cpp="$NECO_INC_DIR"
+set path+=$NECO_INC_DIR
 
 "" C-h や BSでのポップアップ削除
 "inoremap <expr><C-h> neocomplcache#smart_close_popup()
@@ -244,6 +248,38 @@ smap <C-k> <Plug>(neocomplcache_snippets_expand)
 inoremap <expr><C-y> neocomplcache#close_popup()
 " ポップアップのキャンセル
 inoremap <expr><C-e> neocomplcache#cancel_popup()
+
+" clang_complete neocomplcache 併用する設定
+"let g:neocomplcache_force_overwrite_completefunc=1
+"
+"if !exists("g:neocomplcache_force_omni_patterns")
+"  let g:neocomplcache_force_omni_patterns = {}
+"endif
+"
+"" omnifunc が呼び出される場合の正規表現パターンを設定しておく
+"let g:neocomplcache_force_omni_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|::'
+
+" clang_complete 側の設定
+" clang_complete の自動設定を切っておく
+" let g:clang_complete_auto=0
+""""""ここまで""""
+
+" スニペットの展開(neosnippet)
+imap <C-k> <Plug>(neosnippet_expand_or_jump)
+smap <C-k> <Plug>(neosnippet_expand_or_jump)
+
+" SuperTab like snippets behavior.
+"imap <expr><TAB> neosnippet#expandable() ? "\<Plug>(neosnippet_expand_or_jump)" : pumvisible() ? "\<C-n>" : "\<TAB>"
+"smap <expr><TAB> neosnippet#expandable() ? "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+
+" For snippet_comlete marker.
+if has('conceal')
+  set conceallevel=2 concealcursor=i
+endif
+
+" スニペットの展開(neocomplcache_snippets_expand)
+"imap <C-k> <Plug>(neocomplcache_snippets_expand)
+"smap <C-k> <Plug>(neocomplcache_snippets_expand)
 
 "-----------------------------------------------------------------------------
 " マップ定義
